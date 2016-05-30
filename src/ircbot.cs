@@ -37,11 +37,24 @@ namespace IrcBot {
 		public List<string> Channels = new List<string>();
 
 		/*Connection stuff*/
-		private TcpClient connection;
-		private NetworkStream stream;
+		private Socket client;
+//		private NetworkStream stream;
+		private IPAdrress ipAddress; //JUST in case it happens to be needed somewhere outside Connect() too
+		private static ManualResetEvent connectDone = new ManualResetEvent(false);
+		private static ManualResetEvent sendDone = new ManualResetEvent(false);
+		private static ManualResetEvent receiveDone = new ManualResetEvent(false);
 
 		public void Connect() {
-			connection = new TcpClient(this.Server, this.Port);
+			try {
+				IPHostEntry ipHostInfo = Dns.Resolve(this.Server);
+				ipAddress = ipHostInfo.AddressList[0];
+				IPEndPoint remoteEP = new IPEndPoint(ipAddress, this.Port);
+				client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+				
+			} catch (Exception e) {
+				Console.WriteLine(e.ToString());
+			}
 		}
 		public void Listen() {
 			/**/
@@ -50,6 +63,15 @@ namespace IrcBot {
 			/**/
 		}
 
+		/*IRCing stuff*/
+		public void SendMessageDeep(string content) {
+			/*The function that sends the actual message to the server.*/
+		}
+		public void SendMessage(string channel, string content) {
+			/*The higher-level message sending function.*/
+		}
+
+		/*Bot settings stuff*/
 		public int ReadSettings() {
 			try {
 				using (StreamReader settingsStream = new StreamReader("settings")) {
